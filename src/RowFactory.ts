@@ -1,12 +1,12 @@
 import { Piece } from "./Piece";
-import { GroupingFactory } from "./GroupingFactory";
-import { Grouping } from "./Grouping";
+import { SeriesFactory } from "./SeriesFactory";
+import { Series } from "./Series";
 import { Util } from "./Util";
 import { Row } from "./Row";
 
-export class RowFactory implements GroupingFactory {
+export class RowFactory implements SeriesFactory {
 
-    create(mandatory: Piece, optional: Set<Piece>): Set<[Grouping, Set<Piece>]> {
+    create(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
         const remaining = new Set(optional);
         const pieces = [mandatory];
         while (pieces.length < 3) {
@@ -15,9 +15,9 @@ export class RowFactory implements GroupingFactory {
                 pieces.push(nextPiece);
                 remaining.delete(nextPiece);
             }
-            else return new Set<[Grouping, Set<Piece>]>();
+            else return new Set<[Series, Set<Piece>]>();
             //else throw new Error("Can't build row");
         }
-        return new Set<[Grouping, Set<Piece>]>([[new Row(pieces), remaining]]);
+        return new Set<[Series, Set<Piece>]>([[new Row(pieces), remaining]]);
     }
 }

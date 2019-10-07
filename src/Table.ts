@@ -1,14 +1,14 @@
 import { Piece } from "./Piece";
-import { Grouping } from "./Grouping";
-import { GroupingFactory } from "./GroupingFactory";
+import { Series } from "./Series";
+import { SeriesFactory } from "./SeriesFactory";
 import { RowFactory } from "./RowFactory";
 
 export class Table {
 
-    factories: Set<GroupingFactory>;
+    factories: Set<SeriesFactory>;
 
-    constructor(public groupings: Set<Grouping> = new Set<Grouping>()) {
-        this.factories = new Set<GroupingFactory>([new RowFactory]);
+    constructor(public groupings: Set<Series> = new Set<Series>()) {
+        this.factories = new Set<SeriesFactory>([new RowFactory]);
     }
 
     expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Table, Set<Piece>]> {

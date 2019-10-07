@@ -1,7 +1,7 @@
 import { Piece } from "./Piece";
-import { Grouping } from "./Grouping";
+import { Series } from "./Series";
 
-export class Row implements Grouping {
+export class Row implements Series {
     
     pieces: Set<Piece>;
 
@@ -13,8 +13,8 @@ export class Row implements Grouping {
         }
     }
 
-    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Grouping, Set<Piece>]> {
-        let result = new Set<[Grouping, Set<Piece>]>();
+    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
+        let result = new Set<[Series, Set<Piece>]>();
         if ((mandatory.value - 1 === this.orderedPieces[this.orderedPieces.length - 1].value)
             && (mandatory.color === this.orderedPieces[0].color)) {
             result.add([new Row(this.orderedPieces.concat(mandatory)), optional]);
