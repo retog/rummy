@@ -1,4 +1,4 @@
-import { Piece } from './Piece';
+import { ValuePiece } from './ValuePiece';
 import { expect } from 'chai';
 import 'mocha';
 
@@ -6,7 +6,7 @@ import 'mocha';
 describe('construct', () => {
 
     it('should have the color set', () => {
-        const p = new Piece("pink", 3);
+        const p = new ValuePiece("pink", 3);
         expect(p.color).to.equal('pink');
     });
 

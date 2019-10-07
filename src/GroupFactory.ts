@@ -1,17 +1,17 @@
 import { SeriesFactory } from "./SeriesFactory";
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 import { Series } from "./Series";
 import { Util } from "./Util";
 import { Group } from "./Group";
 
 export class GroupFactory implements SeriesFactory {
     
-    create(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
+    create(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Series, Set<ValuePiece>]> {
         const color = new Set<string>();
         const candidates = new Set([...optional].filter(p => p.value === mandatory.value)
             .filter(p => p.color !== mandatory.color)
             .filter(p => color.has(p.color) ? false : color.add(p.color)));
-        const results = new Set<[Series, Set<Piece>]>();
+        const results = new Set<[Series, Set<ValuePiece>]>();
         if (candidates.size === 2) {
             const remaining = new Set(optional);
             candidates.forEach(c => remaining.delete(c));

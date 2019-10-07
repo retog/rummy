@@ -1,7 +1,7 @@
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 
 export interface Series {
-    pieces: Set<Piece>;
+    pieces: Set<ValuePiece>;
 
     /**
      * returns all minimal series that expand this series with at least the
@@ -9,5 +9,5 @@ export interface Series {
      * @param {*} mandatory
      * @returns a set of tuples with expanding grouping and left-over pieces
      */
-    expandWith : (mandatory: Piece, optional: Set<Piece>) => Set<[Series, Set<Piece>]>;
+    expandWith : (mandatory: ValuePiece, optional: Set<ValuePiece>) => Set<[Series, Set<ValuePiece>]>;
 }

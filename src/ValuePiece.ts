@@ -1,4 +1,4 @@
-export class Piece {
+export class ValuePiece {
     color: string;
     value: number;
     constructor (color: string, value: number) {

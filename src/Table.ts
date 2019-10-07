@@ -1,4 +1,4 @@
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 import { Series } from "./Series";
 import { SeriesFactory } from "./SeriesFactory";
 import { RowFactory } from "./RowFactory";
@@ -13,8 +13,8 @@ export class Table {
         this.factories = new Set<SeriesFactory>([new RowFactory, new GroupFactory]);
     }
 
-    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Table, Set<Piece>]> {
-        const result = new Set<[Table, Set<Piece>]>();
+    expandWith(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Table, Set<ValuePiece>]> {
+        const result = new Set<[Table, Set<ValuePiece>]>();
         this.groupings.forEach(grouping => {
             grouping.expandWith(mandatory, optional).forEach(tuple => {
                 const newGrouping = tuple[0];
@@ -37,7 +37,7 @@ export class Table {
         return result;
     }
 
-    addAll(pieces: Set<Piece>): Set<Table> {
+    addAll(pieces: Set<ValuePiece>): Set<Table> {
         const lowest = Util.pickLowest(pieces);
         const rest = new Set(pieces);
         const result = new Set<Table>();

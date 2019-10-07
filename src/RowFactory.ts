@@ -1,4 +1,4 @@
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 import { SeriesFactory } from "./SeriesFactory";
 import { Series } from "./Series";
 import { Util } from "./Util";
@@ -6,7 +6,7 @@ import { Row } from "./Row";
 
 export class RowFactory implements SeriesFactory {
 
-    create(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
+    create(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Series, Set<ValuePiece>]> {
         const remaining = new Set(optional);
         const pieces = [mandatory];
         while (pieces.length < 3) {
@@ -15,9 +15,9 @@ export class RowFactory implements SeriesFactory {
                 pieces.push(nextPiece);
                 remaining.delete(nextPiece);
             }
-            else return new Set<[Series, Set<Piece>]>();
+            else return new Set<[Series, Set<ValuePiece>]>();
             //else throw new Error("Can't build row");
         }
-        return new Set<[Series, Set<Piece>]>([[new Row(pieces), remaining]]);
+        return new Set<[Series, Set<ValuePiece>]>([[new Row(pieces), remaining]]);
     }
 }

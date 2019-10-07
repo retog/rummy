@@ -1,4 +1,4 @@
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 import { Series } from "./Series";
 
 export class Group implements Series {
@@ -6,7 +6,7 @@ export class Group implements Series {
     value: number;
     colors: Set<string>;
 
-    constructor (public pieces: Set<Piece>) {
+    constructor (public pieces: Set<ValuePiece>) {
         if (pieces.size < 3) throw new Error("Group too short (Needs 3)");
         this.colors = new Set<string>();
         const values = new Set<number>();
@@ -18,9 +18,9 @@ export class Group implements Series {
         this.value = [...values][0];
     }
 
-    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
-        if (mandatory.value !== this.value || this.colors.has(mandatory.color)) return new Set<[Series, Set<Piece>]>();
-        return new Set<[Series, Set<Piece>]>([[new Group(new Set([...this.pieces].concat(mandatory))), optional]]);
+    expandWith(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Series, Set<ValuePiece>]> {
+        if (mandatory.value !== this.value || this.colors.has(mandatory.color)) return new Set<[Series, Set<ValuePiece>]>();
+        return new Set<[Series, Set<ValuePiece>]>([[new Group(new Set([...this.pieces].concat(mandatory))), optional]]);
     }
 
     toString() {

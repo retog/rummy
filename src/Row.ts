@@ -1,11 +1,11 @@
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 import { Series } from "./Series";
 
 export class Row implements Series {
     
-    pieces: Set<Piece>;
+    pieces: Set<ValuePiece>;
 
-    constructor (public orderedPieces: Array<Piece>) {
+    constructor (public orderedPieces: Array<ValuePiece>) {
         this.pieces = new Set(orderedPieces);
         if (orderedPieces.length < 3) throw new Error("Row too short (Needs 3)");
         for (let i = 1; i < orderedPieces.length; i++) {
@@ -13,8 +13,8 @@ export class Row implements Series {
         }
     }
 
-    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Series, Set<Piece>]> {
-        let result = new Set<[Series, Set<Piece>]>();
+    expandWith(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Series, Set<ValuePiece>]> {
+        let result = new Set<[Series, Set<ValuePiece>]>();
         if ((mandatory.value - 1 === this.orderedPieces[this.orderedPieces.length - 1].value)
             && (mandatory.color === this.orderedPieces[0].color)) {
             result.add([new Row(this.orderedPieces.concat(mandatory)), optional]);
