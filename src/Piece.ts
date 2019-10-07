@@ -5,4 +5,8 @@ export class Piece {
         this.color = color;
         this.value = value;
     }
+
+    toString() {
+        return "("+this.color+","+this.value+")";
+    }
 }
