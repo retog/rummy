@@ -7,7 +7,7 @@ import { Joker } from './Joker';
 
 
 describe('TableFactory', () => {
-/*
+
     it('3 x 3', () => {
         const elements = new Set([
             new ValuePiece("red",1),
@@ -63,7 +63,7 @@ describe('TableFactory', () => {
         const tables = TableFactory.create(elements);
         expect(tables.size).to.equal(24);
     });
-*/
+
     it('3 x 3 with jokers', () => {
         const elements = new Set([
             new ValuePiece("red",1),
