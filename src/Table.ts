@@ -46,9 +46,9 @@ export class Table {
         const result = new Set<Table>();
         rest.delete(lowest);
         const expanded = this.expandWith(lowest, rest)
-        if (expanded.size === 0) {
+        /*if (expanded.size === 0) {
             console.debug("No expansion was possible with "+lowest+" and "+[ ... rest]);
-        }
+        }*/
         expanded.forEach(tuple => {
             const newTable = tuple[0];
             const remaining = tuple[1];
