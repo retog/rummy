@@ -2,7 +2,7 @@
   "name": "rumi",
   "version": "1.0.0",
   "private": true,
-  "main": "build/rumi.js",
+  "main": "build/TableFactory.js",
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.2.3",
@@ -15,7 +15,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "demo": "node build/demo.js"
   },
   "author": "",
   "license": "ISC"

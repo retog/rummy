@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
-      "target": "es2018",
+      "target": "es5",
       "strict": true,
-      "outDir": "build"
+      "outDir": "build",
+      "lib": ["es2015", "es2015.collection", "dom.iterable", "dom"],
+      "downlevelIteration": true
     },
     "include": [
       "src/**/*"

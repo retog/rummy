@@ -5,7 +5,7 @@ Playing [Brändi Rummy](https://www.braendi-shop.ch/de/A~SB.A05-03) (which I thi
 down all my tiles. So I wrote this code to check if and how a bunch of tiles can be put on the table.
 
 The code cas curently no UI (go ahead an write one) so it has to be accessed programmatically. See 
-`TableFactory.spec.ts` to learn how.
+`TableFactory.spec.ts` or `demo.ts`to learn how.
 
 
 Generate jscode in the `build` directory with:
@@ -13,7 +13,10 @@ Generate jscode in the `build` directory with:
     npm i
     npm run build
 
+Then you can run the demo with:
+
+    npm run demo
+
 Test with:
 
-    npm i
     npm test
