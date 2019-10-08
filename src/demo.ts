@@ -13,8 +13,9 @@ const elements = new Set([
     new ValuePiece("green",3),
     new Joker()]);
 
-console.log("Computing possible tables with all of "+[ ... elements])
+console.log("Computing possible tables with all of "+[ ... elements].sort()+"\n")
 
 const tables = TableFactory.create(elements);
 
-console.log([... tables].map(t => t.toString()).sort().join("\n\n------------------------\n\n"));
+console.log("Found "+tables.size+" possible solutions.\n")
+console.log([... tables].map(t => "TABLE: \n"+t.toString()).sort().join("\n\n------------------------\n\n"));
