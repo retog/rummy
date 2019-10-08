@@ -1,20 +1,29 @@
 import { ValuePiece } from "./ValuePiece";
+import { Piece } from "./Piece";
 
 export const Util = {
-    findIn(color: string, value: number, pieces: Set<ValuePiece>): ValuePiece | null {
+    findIn(color: string, value: number, pieces: Set<Piece>): ValuePiece | null {
         let found: ValuePiece | null = null;
         pieces.forEach(piece => {
-            if (piece.color === color && piece.value === value) found = piece;
+            if (piece instanceof ValuePiece) {
+                if (piece.color === color && piece.value === value) found = piece;
+            }
         });
         return found;
     },
 
-    pickLowest(pieces: Set<ValuePiece>): ValuePiece {
+    pickLowest(pieces: Set<Piece>): Piece {
         let found: ValuePiece | null = null;
         pieces.forEach(piece => {
-            if (!found || found.value > piece.value) found = piece;
+            if ((piece instanceof ValuePiece) && (!found || found.value > piece.value)) found = piece;
         });
-        if (!found) throw new Error("Can't pick lowest of empty Set")
+        if (!found) {
+            if (pieces.size === 0) {
+                throw new Error("Can't pick lowest of empty Set")
+            } else {
+                return [ ...  pieces][0]
+            }
+        }
         return found;
     }
 }

@@ -1,4 +1,6 @@
-export class ValuePiece {
+import { Piece } from "./Piece";
+
+export class ValuePiece implements Piece {
     color: string;
     value: number;
     constructor (color: string, value: number) {

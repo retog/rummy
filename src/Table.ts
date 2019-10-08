@@ -4,40 +4,43 @@ import { SeriesFactory } from "./SeriesFactory";
 import { RowFactory } from "./RowFactory";
 import { Util } from "./Util";
 import { GroupFactory } from "./GroupFactory";
+import { Piece } from "./Piece";
 
 export class Table {
 
     factories: Set<SeriesFactory>;
 
-    constructor(public groupings: Set<Series> = new Set<Series>()) {
+    constructor(public seriesSet: Set<Series> = new Set<Series>()) {
         this.factories = new Set<SeriesFactory>([new RowFactory, new GroupFactory]);
     }
 
-    expandWith(mandatory: ValuePiece, optional: Set<ValuePiece>): Set<[Table, Set<ValuePiece>]> {
-        const result = new Set<[Table, Set<ValuePiece>]>();
-        this.groupings.forEach(grouping => {
+    expandWith(mandatory: Piece, optional: Set<Piece>): Set<[Table, Set<Piece>]> {
+        const result = new Set<[Table, Set<Piece>]>();
+        this.seriesSet.forEach(grouping => {
             grouping.expandWith(mandatory, optional).forEach(tuple => {
                 const newGrouping = tuple[0];
                 const remaining = tuple[1];
-                const newGroupings = new Set(this.groupings);
-                newGroupings.delete(grouping);
-                newGroupings.add(newGrouping);
-                result.add([new Table(newGroupings), remaining])
+                const newSeriesSet = new Set(this.seriesSet);
+                newSeriesSet.delete(grouping);
+                newSeriesSet.add(newGrouping);
+                result.add([new Table(newSeriesSet), remaining])
             })
         });
-        this.factories.forEach(factory => {
-            factory.create(mandatory, optional).forEach(tuple => {
-                const newGrouping = tuple[0];
-                const remaining = tuple[1];
-                const newGroupings = new Set(this.groupings);
-                newGroupings.add(newGrouping);
-                result.add([new Table(newGroupings), remaining])
+        if (mandatory instanceof ValuePiece) {
+            this.factories.forEach(factory => {
+                factory.create(mandatory, optional).forEach(tuple => {
+                    const newGrouping = tuple[0];
+                    const remaining = tuple[1];
+                    const newGroupings = new Set(this.seriesSet);
+                    newGroupings.add(newGrouping);
+                    result.add([new Table(newGroupings), remaining])
+                })
             })
-        })
+        }
         return result;
     }
 
-    addAll(pieces: Set<ValuePiece>): Set<Table> {
+    addAll(pieces: Set<Piece>): Set<Table> {
         const lowest = Util.pickLowest(pieces);
         const rest = new Set(pieces);
         const result = new Set<Table>();
@@ -59,6 +62,6 @@ export class Table {
     }
 
     toString(): string {
-        return [... this.groupings].sort().join("\n")
+        return [... this.seriesSet].sort().join("\n")
     }
 }

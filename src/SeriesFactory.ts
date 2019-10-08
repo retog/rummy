@@ -1,5 +1,6 @@
-import { ValuePiece } from "./ValuePiece";
 import { Series } from "./Series";
+import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece";
 
 export interface SeriesFactory {
 
@@ -9,5 +10,5 @@ export interface SeriesFactory {
      * @param {*} mandatory 
      * @returns a set of tuples with expanding grouping and left-over pieces
      */
-    create : (mandatory: ValuePiece, optional: Set<ValuePiece>) => Set<[Series, Set<ValuePiece>]>;
+    create : (mandatory: ValuePiece, optional: Set<Piece>) => Set<[Series, Set<Piece>]>;
 }

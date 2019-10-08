@@ -1,5 +1,5 @@
-import { ValuePiece } from "./ValuePiece";
 import { Table } from "./Table";
+import { Piece } from "./Piece";
 
 export const TableFactory = {
 
@@ -8,7 +8,7 @@ export const TableFactory = {
      * @param pieces Set of Pieces to be used.
      * @returns Set of all Tables containing only and all given Pieces.
      */
-    create(pieces: Set<ValuePiece>): Set<Table> {
+    create(pieces: Set<Piece>): Set<Table> {
         const emptyTable = new Table();
         const resultMap = new Map<string, Table>();
         emptyTable.addAll(pieces).forEach(table => resultMap.set(table.toString(), table));
