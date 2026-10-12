@@ -1,10 +1,10 @@
-import { ValuePiece } from "./ValuePiece";
-import { Series } from "./Series";
-import { SeriesFactory } from "./SeriesFactory";
-import { RowFactory } from "./RowFactory";
-import { Util } from "./Util";
-import { GroupFactory } from "./GroupFactory";
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece.ts";
+import { Series } from "./Series.ts";
+import { SeriesFactory } from "./SeriesFactory.ts";
+import { RowFactory } from "./RowFactory.ts";
+import { Util } from "./Util.ts";
+import { GroupFactory } from "./GroupFactory.ts";
+import { Piece } from "./Piece.ts";
 
 export class Table {
 

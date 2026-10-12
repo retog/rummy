@@ -4,22 +4,17 @@ Playing [Brändi Rummy](https://www.braendi-shop.ch/de/A~SB.A05-03) (which I thi
 [Rummikub](https://www.rummikub.com/)) I often become desperate by not being sure if I missed a possibility to put 
 down all my tiles. So I wrote this code to check if and how a bunch of tiles can be put on the table.
 
-The solver can be accessed programmatically, see `TableFactory.spec.ts` or `demo.ts` to learn how. There is also a
+The solver can be accessed programmatically, see `TableFactory.test.ts` or `demo.ts` to learn how. There is also a
 web app to train your skills, see below.
 
+The project uses [Deno](https://deno.com/). Run the demo with:
 
-Generate jscode in the `build` directory with:
-
-    npm i
-    npm run build
-
-Then you can run the demo with:
-
-    npm run demo
+    deno task demo
 
 Test with:
 
-    npm test
+    deno task test
+
 ## Rummy Trainer (web app)
 
 A puzzle trainer that runs in the browser and can be installed as an app (PWA, works offline):
@@ -32,14 +27,15 @@ A puzzle trainer that runs in the browser and can be installed as an app (PWA, w
   failed attempts. Your results are stored in the browser's local storage and shown as a chart of your progress.
 - Sounds and animations give feedback on moves, failures and successes.
 
-Run it locally with
+It is published at https://retog.github.io/rummy/. To run it locally:
 
-    npm i
-    npm run serve:web
+    deno task serve
 
-and open http://localhost:8000. `npm run build:web` creates a static build in `dist/web` (including the service
-worker). The workflow in `.github/workflows/pages.yml` deploys it to GitHub Pages on every push to `master`; Pages has
-to be enabled with *GitHub Actions* as source in the repository settings.
+and open http://localhost:8000; the app is rebuilt whenever a source file changes. `deno task build` creates the
+static site in `dist/web` (bundled with `deno bundle`, including the service worker for offline use).
+
+The workflow in `.github/workflows/pages.yml` type-checks, tests and builds every push; pushes to `master` are
+deployed to GitHub Pages. This requires *GitHub Actions* as the source in the repository's Pages settings.
 
 The puzzles are made by `src/puzzle/Generator.ts`: it lays out random valid sets, takes some tiles from the table
 (checking that the remaining tiles can still be arranged into valid sets), shows a fresh arrangement of the remaining
@@ -47,4 +43,4 @@ tiles and adds some random tiles to the rack. The optimum is computed by `src/pu
 search that finds the largest number of rack tiles that can be placed while all tiles on the table end up in valid
 sets. Unlike `TableFactory`, which enumerates all tables, it treats equal tiles as interchangeable and only explores
 sets containing the lowest remaining tile, so it solves even large positions in milliseconds. Its results are checked
-against an exhaustive search in `Optimizer.spec.ts`.
+against an exhaustive search in `Optimizer.test.ts`.

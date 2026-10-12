@@ -1,4 +1,4 @@
-import { Tile, isJoker, CELL_COUNT, COLOR_COUNT, MAX_VALUE, cellIndex } from "./Tile";
+import { Tile, isJoker, CELL_COUNT, COLOR_COUNT, MAX_VALUE, cellIndex } from "./Tile.ts";
 
 /** The best possible table for a board and a rack. */
 export interface Solution {

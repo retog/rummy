@@ -1,6 +1,6 @@
 /** Generates puzzles off the main thread. */
 
-import { generatePuzzle, Difficulty } from "../../src/puzzle/Generator";
+import { generatePuzzle, Difficulty } from "../../src/puzzle/Generator.ts";
 
 interface Request {
     id: number;

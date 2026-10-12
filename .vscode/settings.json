@@ -1,4 +1,5 @@
 {
+    "deno.enable": true,
     "editor.fontFamily": "'Fira Code', Consolas, monospace",
     "editor.fontLigatures": true
 }

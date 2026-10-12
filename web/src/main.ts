@@ -1,15 +1,13 @@
-import { generatePuzzle, Difficulty, DIFFICULTIES, Puzzle } from "../../src/puzzle/Generator";
-import { Tile, tileFromId, isJoker, compareTiles, compareTilesByColor, COLORS } from "../../src/puzzle/Tile";
-import { analyzeSet, evaluateArrangement } from "../../src/puzzle/Rules";
-import { sfx, setSoundEnabled } from "./sound";
-import { confetti } from "./confetti";
-import { store, HistoryEntry, SavedGame } from "./storage";
+import { generatePuzzle, Difficulty, DIFFICULTIES, Puzzle } from "../../src/puzzle/Generator.ts";
+import { Tile, tileFromId, isJoker, compareTiles, compareTilesByColor, COLORS } from "../../src/puzzle/Tile.ts";
+import { analyzeSet, evaluateArrangement } from "../../src/puzzle/Rules.ts";
+import { sfx, setSoundEnabled } from "./sound.ts";
+import { confetti } from "./confetti.ts";
+import { store, HistoryEntry, SavedGame } from "./storage.ts";
 import {
     computePoints, penaltyFactor, summarize, renderChart, Metric, DIFFICULTY_LABEL, MULTIPLIER,
     accuracy, formatDate, isOptimal,
-} from "./stats";
-
-declare const __DEV__: boolean;
+} from "./stats.ts";
 
 type Target = { kind: "set"; index: number } | { kind: "new" } | { kind: "rack" };
 
@@ -824,7 +822,8 @@ function setupPwa() {
         await installPrompt.prompt();
         installPrompt = null;
     });
-    if (!__DEV__ && "serviceWorker" in navigator) {
+    // the production build contains sw.js; the development server has none, so registering fails there
+    if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
             navigator.serviceWorker.register("sw.js").catch(() => undefined);
         });

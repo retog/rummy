@@ -1,6 +1,6 @@
-import { Tile, tileFromId, isJoker, compareTiles, CELL_COUNT, COLOR_COUNT, MAX_VALUE, JOKER_IDS, cellIndex } from "./Tile";
-import { analyzeSet } from "./Rules";
-import { solve, SOLVER_BUDGET_EXCEEDED } from "./Optimizer";
+import { Tile, tileFromId, isJoker, compareTiles, CELL_COUNT, COLOR_COUNT, MAX_VALUE, JOKER_IDS, cellIndex } from "./Tile.ts";
+import { analyzeSet } from "./Rules.ts";
+import { solve, SOLVER_BUDGET_EXCEEDED } from "./Optimizer.ts";
 
 export type Difficulty = "easy" | "medium" | "hard";
 export const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];

@@ -1,6 +1,6 @@
-import { ValuePiece } from "./ValuePiece";
-import { Joker } from "./Joker";
-import { TableFactory } from "./TableFactory";
+import { ValuePiece } from "./ValuePiece.ts";
+import { Joker } from "./Joker.ts";
+import { TableFactory } from "./TableFactory.ts";
 
 const elements = new Set([
     new ValuePiece("red",1),

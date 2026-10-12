@@ -1,4 +1,4 @@
-import { Tile, isJoker, MAX_VALUE, COLOR_COUNT } from "./Tile";
+import { Tile, isJoker, MAX_VALUE, COLOR_COUNT } from "./Tile.ts";
 
 export type MeldKind = "run" | "group";
 

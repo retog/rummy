@@ -1,5 +1,5 @@
-import { Table } from "./Table";
-import { Piece } from "./Piece";
+import { Table } from "./Table.ts";
+import { Piece } from "./Piece.ts";
 
 export const TableFactory = {
 

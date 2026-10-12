@@ -1,7 +1,7 @@
 /** Scoring, summary statistics and the progress chart. */
 
-import { Difficulty } from "../../src/puzzle/Generator";
-import { HistoryEntry } from "./storage";
+import { Difficulty } from "../../src/puzzle/Generator.ts";
+import { HistoryEntry } from "./storage.ts";
 
 export const MULTIPLIER: { [d in Difficulty]: number } = { easy: 1, medium: 2, hard: 3 };
 export const DIFFICULTY_LABEL: { [d in Difficulty]: string } = { easy: "Easy", medium: "Medium", hard: "Hard" };

@@ -1,6 +1,6 @@
-import { ValuePiece } from "./ValuePiece";
-import { Series } from "./Series";
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece.ts";
+import { Series } from "./Series.ts";
+import { Piece } from "./Piece.ts";
 
 export class Row implements Series {
     

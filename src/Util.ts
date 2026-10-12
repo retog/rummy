@@ -1,5 +1,5 @@
-import { ValuePiece } from "./ValuePiece";
-import { Piece } from "./Piece";
+import { ValuePiece } from "./ValuePiece.ts";
+import { Piece } from "./Piece.ts";
 
 export const Util = {
     findIn(color: string, value: number, pieces: Set<Piece>): ValuePiece | null {

@@ -1,0 +1,47 @@
+{
+    "tasks": {
+        "test": {
+            "description": "Run all tests",
+            "command": "deno test"
+        },
+        "check": {
+            "description": "Type-check the solver, the web app and the build script",
+            "command": "deno check src web/src scripts"
+        },
+        "demo": {
+            "description": "Run the solver demo",
+            "command": "deno run src/demo.ts"
+        },
+        "build": {
+            "description": "Build the web app into dist/web",
+            "command": "deno run --allow-read --allow-write=dist --allow-run scripts/build.ts"
+        },
+        "serve": {
+            "description": "Serve the web app on http://localhost:8000 and rebuild on changes",
+            "command": "deno run --allow-read --allow-write=dist --allow-run --allow-net=localhost scripts/build.ts --serve"
+        }
+    },
+    "compilerOptions": {
+        "lib": [
+            "deno.ns",
+            "dom",
+            "dom.iterable",
+            "esnext"
+        ]
+    },
+    "imports": {
+        "@std/expect": "jsr:@std/expect@^1.0.0",
+        "@std/testing": "jsr:@std/testing@^1.0.0"
+    },
+    "exclude": [
+        "dist"
+    ],
+    "lint": {
+        "rules": {
+            "exclude": [
+                "no-window",
+                "no-window-prefix"
+            ]
+        }
+    }
+}

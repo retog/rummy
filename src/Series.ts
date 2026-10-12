@@ -1,4 +1,4 @@
-import { Piece } from "./Piece";
+import { Piece } from "./Piece.ts";
 
 export interface Series {
     pieces: Set<Piece>;

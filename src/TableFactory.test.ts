@@ -1,9 +1,9 @@
-import { ValuePiece } from './ValuePiece';
-import { expect } from 'chai';
-import 'mocha';
-import { Table } from './Table';
-import { TableFactory } from './TableFactory';
-import { Joker } from './Joker';
+import { ValuePiece } from './ValuePiece.ts';
+import { expect } from "@std/expect";
+import { describe, it } from "@std/testing/bdd";
+import { Table } from './Table.ts';
+import { TableFactory } from './TableFactory.ts';
+import { Joker } from './Joker.ts';
 
 
 describe('TableFactory', () => {
@@ -20,7 +20,7 @@ describe('TableFactory', () => {
             new ValuePiece("green",3),
             new ValuePiece("blue",3)]);
         const tables = TableFactory.create(elements);
-        expect(tables.size).to.equal(2);
+        expect(tables.size).toBe(2);
     });
 
     it('4 x 3', () => {
@@ -38,7 +38,7 @@ describe('TableFactory', () => {
             new ValuePiece("blue",3),
             new ValuePiece("orange",3)]);
         const tables = TableFactory.create(elements);
-        expect(tables.size).to.equal(6);
+        expect(tables.size).toBe(6);
     });
 
 
@@ -61,7 +61,7 @@ describe('TableFactory', () => {
             new ValuePiece("blue",4),
             new ValuePiece("orange",4)]);
         const tables = TableFactory.create(elements);
-        expect(tables.size).to.equal(24);
+        expect(tables.size).toBe(24);
     });
 
     it('3 x 3 with jokers', () => {
@@ -76,6 +76,6 @@ describe('TableFactory', () => {
             new ValuePiece("green",3),
             new Joker()]);
         const tables = TableFactory.create(elements);
-        expect(tables.size).to.equal(3);
+        expect(tables.size).toBe(3);
     });
 });

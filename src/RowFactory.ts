@@ -1,10 +1,10 @@
-import { ValuePiece } from "./ValuePiece";
-import { SeriesFactory } from "./SeriesFactory";
-import { Series } from "./Series";
-import { Util } from "./Util";
-import { Row } from "./Row";
-import { Piece } from "./Piece";
-import { Joker } from "./Joker";
+import { ValuePiece } from "./ValuePiece.ts";
+import { SeriesFactory } from "./SeriesFactory.ts";
+import { Series } from "./Series.ts";
+import { Util } from "./Util.ts";
+import { Row } from "./Row.ts";
+import { Piece } from "./Piece.ts";
+import { Joker } from "./Joker.ts";
 
 export class RowFactory implements SeriesFactory {
 

@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import 'mocha';
-import { solve } from './Optimizer';
-import { analyzeSet } from './Rules';
-import { createRandom, Random } from './Generator';
-import { Tile, isJoker, compareTiles, tileFromId, JOKER_IDS } from './Tile';
+import { expect } from "@std/expect";
+import { describe, it, beforeEach } from "@std/testing/bdd";
+import { solve } from './Optimizer.ts';
+import { analyzeSet } from './Rules.ts';
+import { createRandom, Random } from './Generator.ts';
+import { Tile, isJoker, compareTiles, tileFromId, JOKER_IDS } from './Tile.ts';
 
 const RED = 0, BLUE = 1, ORANGE = 2, BLACK = 3;
 const used = new Set<number>();
@@ -61,22 +61,22 @@ function checkSolution(board: Tile[], hand: Tile[]) {
     if (expected < 0) stats.infeasible++;
     else stats.feasible++;
     if (expected < 0) {
-        expect(solution).to.equal(null);
+        expect(solution).toBe(null);
         return;
     }
-    expect(solution).not.to.equal(null);
-    expect(solution!.placed).to.equal(expected);
+    expect(solution).not.toBe(null);
+    expect(solution!.placed).toBe(expected);
     const onTable = new Set<number>();
     solution!.sets.forEach(set => {
-        expect(analyzeSet(set), 'valid set ' + set.map(x => x.id)).not.to.equal(null);
+        expect(analyzeSet(set), 'valid set ' + set.map(x => x.id)).not.toBe(null);
         set.forEach(x => {
-            expect(onTable.has(x.id)).to.equal(false);
+            expect(onTable.has(x.id)).toBe(false);
             onTable.add(x.id);
         });
     });
-    board.forEach(x => expect(onTable.has(x.id)).to.equal(true));
-    expect(onTable.size).to.equal(board.length + expected);
-    expect(solution!.placedTiles.length + solution!.remaining.length).to.equal(hand.length);
+    board.forEach(x => expect(onTable.has(x.id)).toBe(true));
+    expect(onTable.size).toBe(board.length + expected);
+    expect(solution!.placedTiles.length + solution!.remaining.length).toBe(hand.length);
 }
 
 /** random tiles from a small range of values and colors, so that many combinations exist */
@@ -129,45 +129,43 @@ describe('Optimizer', () => {
         const board = [t(RED, 3), t(RED, 4), t(RED, 5)];
         const hand = [t(RED, 6), t(BLUE, 9)];
         const solution = solve(board, hand)!;
-        expect(solution.placed).to.equal(1);
-        expect(solution.remaining.map(x => x.id)).to.deep.equal([hand[1].id]);
+        expect(solution.placed).toBe(1);
+        expect(solution.remaining.map(x => x.id)).toEqual([hand[1].id]);
     });
 
     it('needs to split a run', () => {
         const board = [t(RED, 3), t(RED, 4), t(RED, 5), t(RED, 6), t(RED, 7), t(RED, 8), t(RED, 9)];
         const hand = [t(BLUE, 6), t(BLACK, 6)];
         // red 3-4-5 | red 6 blue 6 black 6 | red 7-8-9
-        expect(solve(board, hand)!.placed).to.equal(2);
+        expect(solve(board, hand)!.placed).toBe(2);
     });
 
     it('returns null for an invalid board', () => {
-        expect(solve([t(RED, 3), t(RED, 4)], [])).to.equal(null);
+        expect(solve([t(RED, 3), t(RED, 4)], [])).toBe(null);
     });
 
     it('uses jokers from the board and the rack', () => {
         const board = [t(RED, 3), j(), t(RED, 5)];
         const hand = [t(RED, 4), t(BLUE, 4), t(BLACK, 4)];
         // red 3-4-5 + joker moves to the group 4 4 J or into the run
-        expect(solve(board, hand)!.placed).to.equal(3);
+        expect(solve(board, hand)!.placed).toBe(3);
         used.clear();
         const solution = solve([t(BLUE, 1), t(BLUE, 2), t(BLUE, 3)], [j(), t(ORANGE, 11)])!;
-        expect(solution.placed).to.equal(1);
+        expect(solution.placed).toBe(1);
     });
 
     it('matches exhaustive search on random positions', function () {
-        this.timeout(60000);
-        const rng = createRandom(Number(process.env.SEED || 4711));
-        for (let round = 0; round < Number(process.env.ROUNDS || 150); round++) {
+        const rng = createRandom(4711);
+        for (let round = 0; round < 150; round++) {
             used.clear();
             const board = rng() < 0.8 ? randomBoard(rng) : randomTiles(rng, 3 + Math.floor(rng() * 7), 0.08);
             const hand = randomTiles(rng, 1 + Math.floor(rng() * 6), 0.08);
             checkSolution(board, hand);
         }
-        expect(stats.feasible).to.be.greaterThan(100);
+        expect(stats.feasible).toBeGreaterThan(100);
     });
 
     it('is fast on a full rack', function () {
-        this.timeout(20000);
         const rng = createRandom(99);
         used.clear();
         // a large board made of runs and groups plus a big rack
@@ -182,6 +180,6 @@ describe('Optimizer', () => {
         }
         hand.push(j(), j());
         const solution = solve(board, hand)!;
-        expect(solution.placed).to.equal(hand.length);
+        expect(solution.placed).toBe(hand.length);
     });
 });

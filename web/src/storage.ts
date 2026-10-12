@@ -1,6 +1,6 @@
 /** Persistence in localStorage. Every access is guarded: storage may be unavailable. */
 
-import { Difficulty, Puzzle } from "../../src/puzzle/Generator";
+import { Difficulty, Puzzle } from "../../src/puzzle/Generator.ts";
 
 const PREFIX = "rummy-trainer.";
 

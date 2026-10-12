@@ -1,10 +1,10 @@
-import { SeriesFactory } from "./SeriesFactory";
-import { ValuePiece } from "./ValuePiece";
-import { Series } from "./Series";
-import { Util } from "./Util";
-import { Group } from "./Group";
-import { Piece } from "./Piece";
-import { Joker } from "./Joker";
+import { SeriesFactory } from "./SeriesFactory.ts";
+import { ValuePiece } from "./ValuePiece.ts";
+import { Series } from "./Series.ts";
+import { Util } from "./Util.ts";
+import { Group } from "./Group.ts";
+import { Piece } from "./Piece.ts";
+import { Joker } from "./Joker.ts";
 
 export class GroupFactory implements SeriesFactory {
     
