@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Rummy Trainer</title>
+    <meta name="description" content="Rummikub puzzle trainer: place as many tiles from your rack as possible and see whether you found the optimal solution.">
+    <meta name="theme-color" content="#0d3b2c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-tile" aria-hidden="true">7</span>
+            <h1>Rummy Trainer</h1>
+        </div>
+        <button id="score-chip" class="score-chip" type="button" title="Your total score. Click to see your progress">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
+            <span id="total-score">0</span>
+        </button>
+        <nav class="top-actions">
+            <button id="btn-install" class="icon-btn" type="button" hidden aria-label="Install app" title="Install app">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
+            </button>
+            <button id="btn-stats" class="icon-btn" type="button" aria-label="Progress" title="Progress">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 15l4-5 4 3 5-7"/></svg>
+            </button>
+            <button id="btn-sound" class="icon-btn" type="button" aria-label="Sound" title="Sound on/off" aria-pressed="true">
+                <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z M16 9a4 4 0 010 6 M18.5 6.5a8 8 0 010 11"/></svg>
+                <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z M16 9l5 6 M21 9l-5 6"/></svg>
+            </button>
+            <button id="btn-help" class="icon-btn" type="button" aria-label="How to play" title="How to play">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 9a3 3 0 115 2.2c-1.2.8-2.2 1.5-2.2 3M12 18h.01"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <section class="toolbar">
+        <div class="segmented" id="difficulty" role="radiogroup" aria-label="Difficulty">
+            <button type="button" role="radio" data-difficulty="easy">Easy</button>
+            <button type="button" role="radio" data-difficulty="medium">Medium</button>
+            <button type="button" role="radio" data-difficulty="hard">Hard</button>
+        </div>
+        <div class="puzzle-meta">
+            <span id="puzzle-id" class="puzzle-id"></span>
+            <span id="placed-counter" class="placed-counter" aria-live="polite"></span>
+        </div>
+        <button id="btn-new" class="btn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0113.7-5.7L20 8.6M20 4v4.6h-4.6M20 12a8 8 0 01-13.7 5.7L4 15.4M4 20v-4.6h4.6"/></svg>
+            New puzzle
+        </button>
+    </section>
+
+    <main class="table-area" aria-label="Table">
+        <div class="table-label">Table</div>
+        <div id="table" class="table"></div>
+    </main>
+
+    <footer class="rack-area">
+        <div class="rack-head">
+            <span class="rack-title">Your rack</span>
+            <button id="btn-sort" class="link-btn" type="button">Sort by color</button>
+        </div>
+        <div id="rack" class="rack" data-drop="rack" tabindex="0" aria-label="Your rack"></div>
+        <div class="actions">
+            <button id="btn-reset" class="btn ghost" type="button" title="Put everything back">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5v5h5M4.6 14a8 8 0 101.6-7.9L4 10"/></svg>
+                Reset
+            </button>
+            <button id="btn-giveup" class="btn ghost" type="button" title="Give up and show an optimal solution">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/></svg>
+                <span class="label">Give up</span>
+            </button>
+            <button id="btn-check" class="btn primary" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+                Check
+            </button>
+        </div>
+    </footer>
+</div>
+
+<dialog id="result-dialog" class="dialog result-dialog" aria-labelledby="result-title">
+    <div id="result-content"></div>
+</dialog>
+
+<dialog id="stats-dialog" class="dialog stats-dialog" aria-labelledby="stats-title">
+    <div class="dialog-head">
+        <h2 id="stats-title">Your progress</h2>
+        <button class="icon-btn close" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+    </div>
+    <div class="viz-root">
+        <div id="stat-tiles" class="stat-tiles"></div>
+        <div class="chart-controls">
+            <div class="segmented small" id="stats-filter" role="radiogroup" aria-label="Difficulty filter">
+                <button type="button" role="radio" data-filter="all">All</button>
+                <button type="button" role="radio" data-filter="easy">Easy</button>
+                <button type="button" role="radio" data-filter="medium">Medium</button>
+                <button type="button" role="radio" data-filter="hard">Hard</button>
+            </div>
+            <div class="segmented small" id="stats-metric" role="radiogroup" aria-label="Metric">
+                <button type="button" role="radio" data-metric="points">Points</button>
+                <button type="button" role="radio" data-metric="accuracy">Accuracy</button>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">
+                <span id="chart-title">Points per puzzle</span>
+                <span class="legend">
+                    <span class="legend-item"><span class="key key-dot"></span>Each puzzle</span>
+                    <span class="legend-item"><span class="key key-line"></span>Average of last 10</span>
+                </span>
+            </div>
+            <div class="chart-wrap">
+                <div id="chart" class="chart"></div>
+                <div id="chart-tooltip" class="chart-tooltip" hidden></div>
+            </div>
+        </div>
+        <details class="history-details">
+            <summary>Show as table</summary>
+            <div class="table-scroll"><table id="history-table"></table></div>
+        </details>
+        <div class="stats-footer">
+            <button id="btn-reset-history" class="link-btn danger" type="button">Reset progress</button>
+        </div>
+    </div>
+</dialog>
+
+<dialog id="help-dialog" class="dialog help-dialog" aria-labelledby="help-title">
+    <div class="dialog-head">
+        <h2 id="help-title">How to play</h2>
+        <button class="icon-btn close" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+    </div>
+    <div class="help-body">
+        <p><strong>Goal:</strong> put as many tiles from your rack on the table as possible. Every set on the table has to stay valid.</p>
+        <div class="help-examples">
+            <div>
+                <div class="mini-set" aria-hidden="true"><span class="mini c-blue">4</span><span class="mini c-blue">5</span><span class="mini c-blue">6</span><span class="mini c-blue">7</span></div>
+                <p><strong>Run:</strong> 3 or more consecutive numbers of one color.</p>
+            </div>
+            <div>
+                <div class="mini-set" aria-hidden="true"><span class="mini c-red">9</span><span class="mini c-orange">9</span><span class="mini c-black">9</span></div>
+                <p><strong>Group:</strong> 3 or 4 tiles of the same number in different colors.</p>
+            </div>
+        </div>
+        <ul>
+            <li>Drag tiles between sets, onto <em>New set</em> or back to your rack. You can also tap a tile and then tap where it should go.</li>
+            <li>You may rearrange the table freely, but tiles from the table can't go to your rack.</li>
+            <li>A joker can stand for any tile.</li>
+            <li>Press <strong>Check</strong> when you're done. You'll learn whether your solution is optimal or whether a better one exists.</li>
+            <li>Invalid checks and extra tries cost 20 % of the points each. Medium puzzles count double, hard ones triple.</li>
+        </ul>
+        <button class="btn primary wide" type="button" data-close autofocus>Let's play</button>
+    </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="loading" class="loading" hidden><div class="spinner"></div></div>
+<canvas id="confetti" class="confetti" popover="manual" aria-hidden="true"></canvas>
+<script type="module" src="app.js"></script>
+</body>
+</html>
