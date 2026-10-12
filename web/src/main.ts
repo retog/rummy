@@ -153,7 +153,7 @@ function tileElement(tile: Tile, standsFor?: number): HTMLButtonElement {
         button.setAttribute("aria-label", "Joker" + (standsFor ? " as " + standsFor : ""));
     } else {
         button.classList.add("c-" + COLORS[tile.color]);
-        button.innerHTML = `<span class="num">${tile.value}</span><span class="pip"></span>`;
+        button.innerHTML = `<span class="num">${tile.value}</span><span class="pip" aria-hidden="true"></span>`;
         button.setAttribute("aria-label", COLORS[tile.color] + " " + tile.value);
     }
     if (!boardIds.has(tile.id)) button.classList.add("own");
@@ -590,7 +590,7 @@ function solutionMarkup(puzzle: Puzzle): string {
         return `<div class="mini-set">${tiles.map((t, k) => {
             const ownClass = own.has(t.id) ? " own" : "";
             if (isJoker(t)) return `<span class="mini joker${ownClass}" title="Joker">J<sub>${meld ? meld.values[k] : ""}</sub></span>`;
-            return `<span class="mini c-${COLORS[t.color]}${ownClass}">${t.value}</span>`;
+            return `<span class="mini c-${COLORS[t.color]}${ownClass}" title="${COLORS[t.color]} ${t.value}">${t.value}<span class="pip"></span></span>`;
         }).join("")}</div>`;
     }).join("");
 }

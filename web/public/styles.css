@@ -11,9 +11,9 @@
     --tile-face: #fffbf1;
     --tile-face-2: #f1e6cb;
     --tile-edge: #cdbb91;
-    --t-red: #d42638;
+    --t-red: #d2214a;
     --t-blue: #1d5bbd;
-    --t-orange: #e07800;
+    --t-orange: #db7500;
     --t-black: #22232a;
     --gold: #f6c544;
     --gold-2: #e8a817;
@@ -554,17 +554,38 @@ svg {
 }
 
 .tile .pip {
-    width: calc(var(--tile-w) * 0.15);
-    height: calc(var(--tile-w) * 0.15);
-    border-radius: 50%;
-    background: currentColor;
-    opacity: 0.85;
+    width: calc(var(--tile-w) * 0.28);
+    height: calc(var(--tile-w) * 0.28);
 }
 
 .c-red { color: var(--t-red); }
 .c-blue { color: var(--t-blue); }
 .c-orange { color: var(--t-orange); }
 .c-black { color: var(--t-black); }
+
+/* every color has its own symbol, so tiles can be told apart without seeing colors */
+.pip {
+    display: block;
+    flex-shrink: 0;
+    background: currentColor;
+}
+
+.c-red .pip {
+    clip-path: circle(41% at 50% 50%);
+}
+
+.c-blue .pip {
+    clip-path: inset(14%);
+}
+
+.c-orange .pip {
+    clip-path: polygon(50% 4%, 100% 92%, 0% 92%);
+}
+
+.c-black .pip {
+    clip-path: polygon(50% 4.8%, 62.9% 37%, 97.6% 39.3%, 70.9% 61.6%, 79.4% 95.2%, 50% 76.8%, 20.6% 95.2%, 29.1% 61.6%, 2.4% 39.3%, 37.1% 37%);
+    transform: scale(1.25);
+}
 
 .tile.joker {
     color: var(--t-red);
@@ -957,15 +978,24 @@ dialog.dialog::backdrop {
 
 .mini {
     position: relative;
-    display: inline-grid;
-    place-items: center;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
     width: 24px;
-    height: 32px;
+    height: 36px;
     border-radius: 5px;
     background: linear-gradient(180deg, var(--tile-face), var(--tile-face-2));
     box-shadow: 0 1px 0 var(--tile-edge);
     font-weight: 850;
     font-size: 0.92rem;
+    line-height: 1;
+}
+
+.mini .pip {
+    width: 8px;
+    height: 8px;
 }
 
 .mini.joker {
@@ -974,7 +1004,8 @@ dialog.dialog::backdrop {
 }
 
 .mini.joker sub {
-    font-size: 0.55rem;
+    font-size: 0.6rem;
+    line-height: 1;
     color: #8b8164;
 }
 
@@ -1018,6 +1049,23 @@ dialog.dialog::backdrop {
 
 .help-examples p {
     margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-2);
+}
+
+.symbol-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 18px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.symbol-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.9rem;
     color: var(--text-2);
 }

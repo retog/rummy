@@ -26,6 +26,8 @@ A puzzle trainer that runs in the browser and can be installed as an app (PWA, w
 - Points depend on how close you got to the optimum, the difficulty (easy ×1, medium ×2, hard ×3) and the number of
   failed attempts. Your results are stored in the browser's local storage and shown as a chart of your progress.
 - Sounds and animations give feedback on moves, failures and successes.
+- Every color also has its own symbol (red ●, blue ■, orange ▲, black ★), so the tiles can be told apart without
+  relying on color.
 
 It is published at https://retog.github.io/rummy/. To run it locally:
 
