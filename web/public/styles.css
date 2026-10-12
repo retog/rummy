@@ -1062,10 +1062,8 @@ dialog.dialog::backdrop {
 }
 
 .credits .heart {
-    width: 1.05em;
-    height: 1.05em;
-    vertical-align: -0.17em;
-    fill: var(--t-red);
+    display: inline-block;
+    color: var(--t-red);
 }
 
 dialog[open] .credits .heart {
