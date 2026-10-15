@@ -183,6 +183,10 @@ interface RenderOptions {
 function render(options: RenderOptions = {}) {
     if (!game) return;
     const g = game;
+    // drag copies that are not part of the current drag must never stay on screen
+    document.querySelectorAll(".tile.ghost:not(.returning)").forEach(ghost => {
+        if (!drag || ghost !== drag.ghost) ghost.remove();
+    });
     ui.app.classList.toggle("finished", g.finished);
     ui.app.classList.toggle("has-selection", selected !== null);
 
@@ -374,15 +378,28 @@ interface DragState {
     startY: number;
     offsetX: number;
     offsetY: number;
+    x: number;
+    y: number;
     ghost: HTMLElement | null;
     target: Target | null;
     targetElement: HTMLElement | null;
+    /** the edges of the table only scroll after the pointer has been away from them */
+    scrollUpArmed: boolean;
+    scrollDownArmed: boolean;
 }
 
 let drag: DragState | null = null;
 let suppressClick = false;
+let scrollFrame = 0;
+
+const tableArea = document.querySelector(".table-area") as HTMLElement;
 
 function onPointerDown(event: PointerEvent) {
+    if (drag && drag.ghost) {
+        // another finger touches while a tile is dragged: put the dragged tile back
+        cancelDrag();
+        return;
+    }
     if (!game || game.finished || event.button !== 0) return;
     const source = (event.target as Element).closest<HTMLElement>("#table .tile, #rack .tile");
     if (!source) return;
@@ -395,31 +412,81 @@ function onPointerDown(event: PointerEvent) {
         startY: event.clientY,
         offsetX: event.clientX - rect.left,
         offsetY: event.clientY - rect.top,
+        x: event.clientX,
+        y: event.clientY,
         ghost: null,
         target: null,
         targetElement: null,
+        scrollUpArmed: false,
+        scrollDownArmed: false,
     };
 }
 
 function onPointerMove(event: PointerEvent) {
     if (!drag || event.pointerId !== drag.pointerId) return;
+    if (event.pointerType === "mouse" && event.buttons === 0) {
+        // the button was released outside of the window
+        cancelDrag();
+        return;
+    }
     if (!drag.ghost) {
         if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 6) return;
         startDrag(drag);
     }
     event.preventDefault();
-    positionGhost(drag, event.clientX, event.clientY);
-    const under = document.elementFromPoint(event.clientX, event.clientY);
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+    positionGhost(drag);
+    updateTarget(drag);
+    if (!scrollFrame && autoScrollSpeed(drag) !== 0) scrollFrame = requestAnimationFrame(autoScroll);
+}
+
+function updateTarget(state: DragState) {
+    const under = document.elementFromPoint(state.x, state.y);
     const target = targetOf(under);
     const targetElement = under ? under.closest<HTMLElement>("[data-drop]") : null;
-    if (targetElement !== drag.targetElement) {
-        if (drag.targetElement) drag.targetElement.classList.remove("drop-ok", "drop-denied");
-        drag.targetElement = targetElement;
-        drag.target = target;
+    if (targetElement !== state.targetElement) {
+        if (state.targetElement) state.targetElement.classList.remove("drop-ok", "drop-denied");
+        state.targetElement = targetElement;
         if (targetElement && target) {
-            targetElement.classList.add(canMove(drag.id, target) ? "drop-ok" : "drop-denied");
+            targetElement.classList.add(canMove(state.id, target) ? "drop-ok" : "drop-denied");
         }
     }
+    state.target = target;
+}
+
+/**
+ * Scroll speed in pixels per frame when a tile is dragged close to the top or bottom of the table
+ * (or above it), so that sets out of sight can be reached.
+ */
+function autoScrollSpeed(state: DragState): number {
+    const area = tableArea.getBoundingClientRect();
+    const zone = Math.min(64, area.height / 4);
+    const top = area.top + zone;
+    const bottom = area.bottom - zone;
+    if (state.y >= top) state.scrollUpArmed = true;
+    if (state.y <= bottom) state.scrollDownArmed = true;
+    if (state.y < top && state.scrollUpArmed) return -Math.ceil(16 * Math.min(1, (top - state.y) / zone));
+    if (state.y > bottom && state.y <= area.bottom && state.scrollDownArmed) {
+        return Math.ceil(16 * Math.min(1, (state.y - bottom) / zone));
+    }
+    return 0;
+}
+
+function autoScroll() {
+    scrollFrame = 0;
+    if (!drag || !drag.ghost) return;
+    const speed = autoScrollSpeed(drag);
+    if (speed === 0) return;
+    const before = tableArea.scrollTop;
+    tableArea.scrollTop += speed;
+    if (tableArea.scrollTop !== before) updateTarget(drag);
+    scrollFrame = requestAnimationFrame(autoScroll);
+}
+
+function stopAutoScroll() {
+    if (scrollFrame) cancelAnimationFrame(scrollFrame);
+    scrollFrame = 0;
 }
 
 function startDrag(state: DragState) {
@@ -439,15 +506,37 @@ function startDrag(state: DragState) {
     sfx.pick();
 }
 
-function positionGhost(state: DragState, x: number, y: number) {
+function positionGhost(state: DragState) {
     if (!state.ghost) return;
-    state.ghost.style.transform = `translate(${x - state.offsetX}px, ${y - state.offsetY}px) rotate(-4deg) scale(1.12)`;
+    state.ghost.style.transform = `translate(${state.x - state.offsetX}px, ${state.y - state.offsetY}px) rotate(-4deg) scale(1.12)`;
+}
+
+/** Ends a drag without moving the tile: it flies back to where it came from. */
+function cancelDrag() {
+    const state = drag;
+    drag = null;
+    stopAutoScroll();
+    if (!state || !state.ghost) return;
+    ui.app.classList.remove("dragging");
+    if (state.targetElement) state.targetElement.classList.remove("drop-ok", "drop-denied");
+    flyBack(state, state.ghost);
+}
+
+function flyBack(state: DragState, ghost: HTMLElement) {
+    const home = state.source.getBoundingClientRect();
+    ghost.classList.add("returning");
+    ghost.style.transform = `translate(${home.left}px, ${home.top}px)`;
+    setTimeout(() => {
+        ghost.remove();
+        state.source.classList.remove("lifted");
+    }, reducedMotion() ? 0 : 220);
 }
 
 function onPointerUp(event: PointerEvent) {
     if (!drag || event.pointerId !== drag.pointerId) return;
     const state = drag;
     drag = null;
+    stopAutoScroll();
     if (!state.ghost) return; // a click, handled by onClick
     suppressClick = true;
     setTimeout(() => (suppressClick = false), 0);
@@ -462,18 +551,11 @@ function onPointerUp(event: PointerEvent) {
         moveTile(state.id, target, positions);
         return;
     }
-    // fly back
     if (target) {
         sfx.deny();
         if (target.kind === "rack") toast("Tiles from the table can't go to your rack.");
     }
-    const home = state.source.getBoundingClientRect();
-    ghost.classList.add("returning");
-    ghost.style.transform = `translate(${home.left}px, ${home.top}px)`;
-    setTimeout(() => {
-        ghost.remove();
-        state.source.classList.remove("lifted");
-    }, reducedMotion() ? 0 : 220);
+    flyBack(state, ghost);
 }
 
 function onClick(event: MouseEvent) {
@@ -843,6 +925,10 @@ function init() {
     document.addEventListener("pointermove", onPointerMove, { passive: false });
     document.addEventListener("pointerup", onPointerUp);
     document.addEventListener("pointercancel", onPointerUp);
+    window.addEventListener("blur", cancelDrag);
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) cancelDrag();
+    });
     ui.app.addEventListener("click", onClick);
     document.addEventListener("keydown", onKeyDown);
     // keep the page from scrolling while a tile is dragged on touch screens
