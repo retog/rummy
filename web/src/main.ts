@@ -480,7 +480,9 @@ function autoScroll() {
     if (speed === 0) return;
     const before = tableArea.scrollTop;
     tableArea.scrollTop += speed;
-    if (tableArea.scrollTop !== before) updateTarget(drag);
+    // At the boundary nothing moves: stop until the next pointer move rearms the loop.
+    if (tableArea.scrollTop === before) return;
+    updateTarget(drag);
     scrollFrame = requestAnimationFrame(autoScroll);
 }
 
