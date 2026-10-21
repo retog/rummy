@@ -473,6 +473,8 @@ svg {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    background: none;
+    font-family: inherit;
     min-width: calc(var(--tile-w) * 2.6);
     height: calc(var(--tile-h) + 18px);
     padding: 0 14px;
@@ -505,6 +507,8 @@ svg {
     place-items: center;
     width: var(--tile-w);
     height: var(--tile-h);
+    padding: 0;
+    background: none;
     border: 2px dashed rgba(255, 255, 255, 0.55);
     border-radius: calc(var(--tile-w) * 0.16);
     color: rgba(255, 255, 255, 0.8);

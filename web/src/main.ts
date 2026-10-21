@@ -164,10 +164,14 @@ function tileElement(tile: Tile, standsFor?: number): HTMLButtonElement {
     return button;
 }
 
-function slotElement(): HTMLElement {
-    const slot = document.createElement("span");
+/** The "+" target shown in a set while a tile is selected. A real button so that
+ *  assistive tools (screen readers, Voice Access "show numbers") can target it. */
+function slotElement(index: number): HTMLButtonElement {
+    const slot = document.createElement("button");
+    slot.type = "button";
     slot.className = "slot";
-    slot.setAttribute("aria-hidden", "true");
+    slot.setAttribute("aria-label", `Add to set ${index + 1}`);
+    slot.title = `Add to set ${index + 1}`;
     slot.textContent = "+";
     return slot;
 }
@@ -209,15 +213,14 @@ function render(options: RenderOptions = {}) {
             if (options.deal) t.style.setProperty("--deal", String(dealIndex++));
             set.append(t);
         });
-        if (selected !== null && !ids.includes(selected)) set.append(slotElement());
+        if (selected !== null && !ids.includes(selected)) set.append(slotElement(index));
         ui.table.append(set);
     });
-    const zone = document.createElement("div");
+    const zone = document.createElement("button");
+    zone.type = "button";
     zone.className = "new-set";
     zone.dataset.drop = "new";
-    zone.tabIndex = 0;
-    zone.setAttribute("role", "button");
-    zone.innerHTML = `<span class="plus">+</span><span>New set</span>`;
+    zone.innerHTML = `<span class="plus" aria-hidden="true">+</span><span>New set</span>`;
     ui.table.append(zone);
 
     // rack
