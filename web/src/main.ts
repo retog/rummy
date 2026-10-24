@@ -753,14 +753,11 @@ function showResult(entry: HistoryEntry, celebrate = true) {
         text = `You placed <strong>${entry.placed}</strong> of <strong>${entry.optimum}</strong> possible tiles.`;
     }
     const factor = penaltyFactor(entry.penalties);
-    const depth = game.puzzle.depth;
-    const depthRow = depth ? `<li><span>Sets to rearrange</span><span>at least ${depth} of ${game.puzzle.board.length}</span></li>` : "";
-    const details = entry.gaveUp ? depthRow : [
+    const details = entry.gaveUp ? "" : [
         `<li><span>Difficulty</span><span>${DIFFICULTY_LABEL[entry.difficulty]} ×${MULTIPLIER[entry.difficulty]}</span></li>`,
         `<li><span>Accuracy</span><span>${accuracy(entry)} %</span></li>`,
         entry.penalties ? `<li><span>Penalties</span><span>${entry.penalties} (×${factor.toFixed(2).replace(/0$/, "")})</span></li>` : "",
         optimal && summary.currentStreak > 1 ? `<li><span>Optimal streak</span><span>🔥 ${summary.currentStreak}</span></li>` : "",
-        depthRow,
     ].join("");
     ui.resultContent.innerHTML = `
         <div class="result-hero ${optimal ? "success" : entry.gaveUp ? "gaveup" : "partial"}">
