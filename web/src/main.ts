@@ -149,11 +149,23 @@ async function newPuzzle() {
     closeDialog(ui.resultDialog);
     const request = ++puzzleRequest;
     const difficulty = settings.difficulty;
-    const loadingTimer = setTimeout(() => (ui.loading.hidden = false), 150);
-    const puzzle = await nextPuzzle(difficulty);
+    // the spinner only shows for the newest request: an older one may finish later
+    const loadingTimer = setTimeout(() => {
+        if (request === puzzleRequest) ui.loading.hidden = false;
+    }, 150);
+    let puzzle: Puzzle;
+    try {
+        puzzle = await nextPuzzle(difficulty);
+    } catch {
+        clearTimeout(loadingTimer);
+        if (request !== puzzleRequest) return;
+        ui.loading.hidden = true;
+        toast("Could not create a puzzle. Please try again.", "error");
+        return;
+    }
+    clearTimeout(loadingTimer);
     // a newer request (another difficulty was chosen meanwhile) has taken over
     if (request !== puzzleRequest) return;
-    clearTimeout(loadingTimer);
     ui.loading.hidden = true;
     startGame({
         puzzle,
