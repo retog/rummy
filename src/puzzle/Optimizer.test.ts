@@ -154,6 +154,21 @@ describe('Optimizer', () => {
         expect(solution.placed).toBe(1);
     });
 
+    it('can leave no room for given tiles', () => {
+        // red 3 has to form a group, so that the run starts at 4
+        const board = [t(RED, 3), t(BLUE, 3), t(BLACK, 3), t(RED, 4), t(RED, 5), t(RED, 6)];
+        const sets = solve(board, [], { noRoomFor: [t(RED, 2)] })!.sets;
+        expect(sets.map(set => set.length).sort()).toEqual([3, 3]);
+        expect(sets.every(set => analyzeSet(set) !== null)).toBe(true);
+        // the group has room for orange 3, the run for red 7, and there is no other arrangement
+        expect(solve(board, [], { noRoomFor: [t(ORANGE, 3)] })).toBe(null);
+        expect(solve(board, [], { noRoomFor: [t(RED, 7)] })).toBe(null);
+        // with a joker the run can be read with the joker at either end
+        used.clear();
+        expect(solve([t(RED, 4), j(), t(RED, 6)], [], { noRoomFor: [t(RED, 7)] })).toBe(null);
+        expect(solve([t(RED, 4), j(), t(RED, 6)], [], { noRoomFor: [t(BLUE, 4)] })).not.toBe(null);
+    });
+
     it('matches exhaustive search on random positions', function () {
         const rng = createRandom(4711);
         for (let round = 0; round < 150; round++) {

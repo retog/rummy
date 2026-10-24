@@ -47,6 +47,7 @@
             <button type="button" role="radio" data-difficulty="easy">Easy</button>
             <button type="button" role="radio" data-difficulty="medium">Medium</button>
             <button type="button" role="radio" data-difficulty="hard">Hard</button>
+            <button type="button" role="radio" data-difficulty="extreme">Extreme</button>
         </div>
         <div class="puzzle-meta">
             <span id="puzzle-id" class="puzzle-id"></span>
@@ -105,6 +106,7 @@
                 <button type="button" role="radio" data-filter="easy">Easy</button>
                 <button type="button" role="radio" data-filter="medium">Medium</button>
                 <button type="button" role="radio" data-filter="hard">Hard</button>
+                <button type="button" role="radio" data-filter="extreme">Extreme</button>
             </div>
             <div class="segmented small" id="stats-metric" role="radiogroup" aria-label="Metric">
                 <button type="button" role="radio" data-metric="points">Points</button>
@@ -165,7 +167,11 @@
             <li>You may rearrange the table freely, but tiles from the table can't go to your rack.</li>
             <li>A joker can stand for any tile.</li>
             <li>Press <strong>Check</strong> when you're done. You'll learn whether your solution is optimal or whether a better one exists.</li>
-            <li>Invalid checks and extra tries cost 20 % of the points each. Medium puzzles count double, hard ones triple.</li>
+            <li>Invalid checks and extra tries cost 20 % of the points each. Medium puzzles count double, hard ones triple,
+                extreme ones five times.</li>
+            <li><strong>Extreme</strong> puzzles are made to resist shortcuts: nothing from your rack fits as the table is or forms
+                a set on its own, placing even a single tile means changing at least two sets, and every optimal solution
+                rearranges at least five.</li>
         </ul>
         <button class="btn primary wide" type="button" data-close autofocus>Let's play</button>
         <footer class="credits">

@@ -23,8 +23,11 @@ A puzzle trainer that runs in the browser and can be installed as an app (PWA, w
   possible: drag tiles between sets, onto *New set* or back to the rack (or tap a tile, then tap where it should go).
 - **Check** tells you whether every set is valid and whether your solution is optimal. If a better solution exists,
   you can keep trying or have an optimal solution shown.
-- Points depend on how close you got to the optimum, the difficulty (easy ×1, medium ×2, hard ×3) and the number of
-  failed attempts. Your results are stored in the browser's local storage and shown as a chart of your progress.
+- Points depend on how close you got to the optimum, the difficulty (easy ×1, medium ×2, hard ×3, extreme ×5) and the
+  number of failed attempts. Your results are stored in the browser's local storage and shown as a chart of your progress.
+- **Extreme** puzzles are built to resist shortcuts: nothing from the rack fits into a set as it is or forms a set on its
+  own, placing even a single tile requires changing at least two sets, and every optimal solution rearranges at least
+  five sets of the table.
 - Sounds and animations give feedback on moves, failures and successes.
 - Every color also has its own symbol (red ●, blue ■, orange ▲, black ★), so the tiles can be told apart without
   relying on color.
@@ -46,3 +49,12 @@ search that finds the largest number of rack tiles that can be placed while all 
 sets. Unlike `TableFactory`, which enumerates all tables, it treats equal tiles as interchangeable and only explores
 sets containing the lowest remaining tile, so it solves even large positions in milliseconds. Its results are checked
 against an exhaustive search in `Optimizer.test.ts`.
+
+How hard a puzzle is can be measured with the optimizer as an oracle, see `src/puzzle/Analysis.ts`: which rack tiles fit
+a set as it is, how many sets the cheapest move changes, and the *depth* of the puzzle, the number of sets on the table
+that every optimal solution changes (found by searching for the largest group of sets that can stay untouched). Extreme
+puzzles use these measures as acceptance criteria. Their hidden tiles are chosen so that the remaining tiles can be
+arranged with no room for any of them (the optimizer supports this as a constraint), the distractors are decoys that
+look like they fit, and a candidate is only accepted if no rack tiles form a set by themselves, placing any single tile
+changes at least two sets and every optimal solution changes at least five. Since this can take a couple of seconds,
+the web app prepares the next puzzle in its worker while the current one is being solved.

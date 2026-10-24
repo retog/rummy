@@ -1,4 +1,5 @@
 import { Tile, isJoker, CELL_COUNT, COLOR_COUNT, MAX_VALUE, cellIndex } from "./Tile.ts";
+import { analyzeSet } from "./Rules.ts";
 
 /** The best possible table for a board and a rack. */
 export interface Solution {
@@ -15,6 +16,8 @@ export interface Solution {
 export interface SolveOptions {
     /** abort with a SolverBudgetExceeded error after visiting this many states */
     maxStates?: number;
+    /** only build sets that none of these tiles could simply be added to */
+    noRoomFor?: readonly Tile[];
 }
 
 export const SOLVER_BUDGET_EXCEEDED = "SolverBudgetExceeded";
@@ -47,6 +50,7 @@ const SKIP: Move = { slots: [], boardJokers: 0, handJokers: 0 };
  */
 export function solve(board: readonly Tile[], hand: readonly Tile[], options: SolveOptions = {}): Solution | null {
     const maxStates = options.maxStates || DEFAULT_MAX_STATES;
+    const noRoomFor = options.noRoomFor || [];
     const b = new Int8Array(CELL_COUNT);
     const h = new Int8Array(CELL_COUNT);
     let bj = 0;
@@ -145,7 +149,50 @@ export function solve(board: readonly Tile[], hand: readonly Tile[], options: So
             usedHandJokers -= fromHand;
         }
 
-        function emit(gain: number) {
+        /** the set described by `slots` and the used jokers, as tiles */
+        function currentSet(): Tile[] {
+            const tiles: Tile[] = [];
+            for (const slot of slots) {
+                const cell = slot >> 1;
+                tiles.push({ id: -1, color: cell % COLOR_COUNT, value: Math.floor(cell / COLOR_COUNT) + 1 });
+            }
+            for (let j = usedBoardJokers + usedHandJokers; j > 0; j--) tiles.push({ id: -1, color: -1, value: 0 });
+            return tiles;
+        }
+
+        /**
+         * True if one of the `noRoomFor` tiles could be added to the set that is about to be
+         * emitted: a run of `color` from `value` to `end`, or a group at `value`.
+         */
+        function hasRoom(isRun: boolean, end: number): boolean {
+            const jokers = usedBoardJokers + usedHandJokers;
+            const size = slots.length + jokers;
+            let tiles: Tile[] | undefined;
+            for (const t of noRoomFor) {
+                if (isJoker(t)) {
+                    if (size < (isRun ? MAX_VALUE : COLOR_COUNT)) return true;
+                    continue;
+                }
+                if (isRun && jokers === 0) {
+                    if (t.color === color && (t.value === value - 1 || t.value === end + 1)) return true;
+                    continue;
+                }
+                if (!isRun && slots.length > 1) {
+                    if (t.value !== value || size >= COLOR_COUNT) continue;
+                    let present = false;
+                    for (const slot of slots) if ((slot >> 1) % COLOR_COUNT === t.color) present = true;
+                    if (!present) return true;
+                    continue;
+                }
+                // runs with jokers and sets with a single real tile can be read in several ways
+                if (!tiles) tiles = currentSet();
+                if (analyzeSet(tiles.concat(t)) !== null) return true;
+            }
+            return false;
+        }
+
+        function emit(gain: number, isRun: boolean, end: number) {
+            if (noRoomFor.length > 0 && hasRoom(isRun, end)) return;
             const rest = search(i);
             if (rest >= 0 && rest + gain > best) {
                 best = rest + gain;
@@ -161,7 +208,7 @@ export function solve(board: readonly Tile[], hand: readonly Tile[], options: So
             const maxPadding = Math.min(bj + hj, room);
             for (let x = Math.max(0, 3 - length); x <= maxPadding && !done; x++) {
                 const fromHand = takeJokers(x);
-                emit(gain + fromHand);
+                emit(gain + fromHand, true, end);
                 giveJokers(x, fromHand);
             }
             const available = bj + hj;
@@ -198,7 +245,7 @@ export function solve(board: readonly Tile[], hand: readonly Tile[], options: So
                 const maxJokers = Math.min(3 - n, bj + hj);
                 for (let j = minJokers; j <= maxJokers && !done; j++) {
                     const fromHand = takeJokers(j);
-                    emit(g + fromHand);
+                    emit(g + fromHand, false, 0);
                     giveJokers(j, fromHand);
                 }
                 for (let o = 0; o < n; o++) untake();

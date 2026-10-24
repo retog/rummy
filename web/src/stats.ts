@@ -3,8 +3,8 @@
 import { Difficulty } from "../../src/puzzle/Generator.ts";
 import { HistoryEntry } from "./storage.ts";
 
-export const MULTIPLIER: { [d in Difficulty]: number } = { easy: 1, medium: 2, hard: 3 };
-export const DIFFICULTY_LABEL: { [d in Difficulty]: string } = { easy: "Easy", medium: "Medium", hard: "Hard" };
+export const MULTIPLIER: { [d in Difficulty]: number } = { easy: 1, medium: 2, hard: 3, extreme: 5 };
+export const DIFFICULTY_LABEL: { [d in Difficulty]: string } = { easy: "Easy", medium: "Medium", hard: "Hard", extreme: "Extreme" };
 
 /** Each penalty (invalid check or "keep trying") costs 20 % of the points, down to 25 %. */
 export function penaltyFactor(penalties: number): number {

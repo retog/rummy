@@ -757,7 +757,7 @@ svg {
         justify-self: start;
     }
     .segmented button {
-        padding: 5px 12px;
+        padding: 5px 10px;
     }
     #btn-new {
         grid-area: new;
@@ -1536,5 +1536,16 @@ dialog[open] .credits .heart {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+/* very narrow phones: four difficulties have to fit next to the new-puzzle button */
+@media (max-width: 400px) {
+    #difficulty {
+        min-width: 0;
+    }
+    #difficulty button {
+        padding: 5px 7px;
+        font-size: 0.82rem;
     }
 }
