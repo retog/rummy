@@ -58,9 +58,25 @@ let betterPending = false;
 
 // ---------------------------------------------------------------- puzzles
 
+interface Request {
+    seed: number;
+    difficulty: Difficulty;
+    resolve: (p: Puzzle) => void;
+    reject: (e: unknown) => void;
+}
+
 let worker: Worker | null | undefined;
 let requestId = 0;
-const pending = new Map<number, { seed: number; difficulty: Difficulty; resolve: (p: Puzzle) => void }>();
+const pending = new Map<number, Request>();
+
+/** Generates the puzzle on the main thread. */
+function generateHere(request: Request) {
+    try {
+        request.resolve(generatePuzzle(request.seed, request.difficulty));
+    } catch (e) {
+        request.reject(e);
+    }
+}
 
 function getWorker(): Worker | null {
     if (worker !== undefined) return worker;
@@ -70,12 +86,13 @@ function getWorker(): Worker | null {
             const request = pending.get(event.data.id);
             if (!request) return;
             pending.delete(event.data.id);
-            request.resolve(event.data.puzzle || generatePuzzle(request.seed, request.difficulty));
+            if (event.data.puzzle) request.resolve(event.data.puzzle);
+            else request.reject(new Error(event.data.error));
         };
         worker.onerror = () => {
             // fall back to generating on the main thread
             worker = null;
-            pending.forEach(request => request.resolve(generatePuzzle(request.seed, request.difficulty)));
+            pending.forEach(generateHere);
             pending.clear();
         };
     } catch {
@@ -85,11 +102,15 @@ function getWorker(): Worker | null {
 }
 
 function createPuzzle(seed: number, difficulty: Difficulty): Promise<Puzzle> {
-    const w = getWorker();
-    if (!w) return Promise.resolve(generatePuzzle(seed, difficulty));
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+        const request = { seed, difficulty, resolve, reject };
+        const w = getWorker();
+        if (!w) {
+            generateHere(request);
+            return;
+        }
         const id = ++requestId;
-        pending.set(id, { seed, difficulty, resolve });
+        pending.set(id, request);
         w.postMessage({ id, seed, difficulty });
     });
 }
@@ -100,11 +121,51 @@ function randomSeed(): number {
     return 100000 + (buffer[0] % 900000);
 }
 
+/** Puzzles generated ahead of time, so that the next one is ready when it is asked for. */
+const prefetched = new Map<Difficulty, Promise<Puzzle>>();
+
+/** Generates the next puzzle of a difficulty in the background (extreme puzzles take a moment). */
+function prefetch(difficulty: Difficulty) {
+    if (prefetched.has(difficulty) || !getWorker()) return;
+    const promise = createPuzzle(randomSeed(), difficulty);
+    promise.catch(() => prefetched.delete(difficulty));
+    prefetched.set(difficulty, promise);
+}
+
+async function nextPuzzle(difficulty: Difficulty): Promise<Puzzle> {
+    const ready = prefetched.get(difficulty);
+    prefetched.delete(difficulty);
+    try {
+        return await (ready || createPuzzle(randomSeed(), difficulty));
+    } catch {
+        // generation failed for this seed: another seed will do
+        return await createPuzzle(randomSeed(), difficulty);
+    }
+}
+
+let puzzleRequest = 0;
+
 async function newPuzzle() {
     closeDialog(ui.resultDialog);
-    const loadingTimer = setTimeout(() => (ui.loading.hidden = false), 150);
-    const puzzle = await createPuzzle(randomSeed(), settings.difficulty);
+    const request = ++puzzleRequest;
+    const difficulty = settings.difficulty;
+    // the spinner only shows for the newest request: an older one may finish later
+    const loadingTimer = setTimeout(() => {
+        if (request === puzzleRequest) ui.loading.hidden = false;
+    }, 150);
+    let puzzle: Puzzle;
+    try {
+        puzzle = await nextPuzzle(difficulty);
+    } catch {
+        clearTimeout(loadingTimer);
+        if (request !== puzzleRequest) return;
+        ui.loading.hidden = true;
+        toast("Could not create a puzzle. Please try again.", "error");
+        return;
+    }
     clearTimeout(loadingTimer);
+    // a newer request (another difficulty was chosen meanwhile) has taken over
+    if (request !== puzzleRequest) return;
     ui.loading.hidden = true;
     startGame({
         puzzle,
@@ -128,6 +189,7 @@ function startGame(saved: SavedGame, deal: boolean) {
     saveGame();
     render({ deal });
     if (deal) sfx.deal(saved.puzzle.hand.length + boardIds.size);
+    prefetch(settings.difficulty);
 }
 
 function saveGame() {
