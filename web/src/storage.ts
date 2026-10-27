@@ -26,6 +26,10 @@ export interface Settings {
     difficulty: Difficulty;
     sound: boolean;
     seenHelp: boolean;
+    /** a shared result includes the time the puzzle took */
+    shareTime: boolean;
+    /** a shared result includes the total score */
+    shareTotal: boolean;
 }
 
 /** One finished puzzle. */
@@ -55,7 +59,10 @@ export interface SavedGame {
 
 export const store = {
     settings(): Settings {
-        return Object.assign({ difficulty: "easy", sound: true, seenHelp: false }, read<Partial<Settings>>("settings", {}));
+        return Object.assign(
+            { difficulty: "easy", sound: true, seenHelp: false, shareTime: true, shareTotal: true },
+            read<Partial<Settings>>("settings", {}),
+        );
     },
     saveSettings(settings: Settings) {
         write("settings", settings);

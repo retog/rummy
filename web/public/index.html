@@ -6,6 +6,17 @@
     <title>Rummy Trainer</title>
     <meta name="description" content="Rummikub puzzle trainer: place as many tiles from your rack as possible and see whether you found the optimal solution.">
     <meta name="author" content="Reto Gmür">
+    <!-- The preview of a shared link in messengers and social networks. The image needs an absolute address. There
+         is no og:url on purpose: it would replace the shared link, which has to keep its level (?level=hard). -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Rummy Trainer">
+    <meta property="og:title" content="Rummy Trainer">
+    <meta property="og:description" content="Rummikub puzzle trainer: place as many tiles from your rack as possible and see whether you found the optimal solution.">
+    <meta property="og:image" content="https://retog.github.io/rummy/icons/icon-maskable-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:alt" content="A blue 6 and a red 7 on a green table">
+    <meta name="twitter:card" content="summary">
     <meta name="theme-color" content="#0d3b2c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -91,6 +102,29 @@
     <div id="result-content"></div>
 </dialog>
 
+<dialog id="share-dialog" class="dialog share-dialog" aria-labelledby="share-title">
+    <div class="dialog-head">
+        <h2 id="share-title">Share your result</h2>
+        <button class="icon-btn close" type="button" data-close aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+    </div>
+    <div class="share-body">
+        <p id="share-preview" class="share-preview"></p>
+        <div class="share-options" role="group" aria-labelledby="share-options-label">
+            <span id="share-options-label">Also share</span>
+            <label class="share-option"><input id="share-time" type="checkbox"> Time <span id="share-time-value"></span></label>
+            <label class="share-option"><input id="share-total" type="checkbox"> Total score <span id="share-total-value"></span></label>
+        </div>
+        <button id="btn-share-native" class="btn primary wide" type="button" autofocus hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M8 10H6.5A1.5 1.5 0 005 11.5v8A1.5 1.5 0 006.5 21h11a1.5 1.5 0 001.5-1.5v-8a1.5 1.5 0 00-1.5-1.5H16"/></svg>
+            Share…
+        </button>
+        <div id="share-targets" class="share-targets"></div>
+        <p id="share-status" class="fineprint share-status" role="status" aria-live="polite"></p>
+    </div>
+</dialog>
+
 <dialog id="stats-dialog" class="dialog stats-dialog" aria-labelledby="stats-title">
     <div class="dialog-head">
         <h2 id="stats-title">Your progress</h2>
@@ -172,6 +206,8 @@
             <li><strong>Extreme</strong> puzzles are made to resist shortcuts: nothing from your rack fits as the table is or forms
                 a set on its own, placing even a single tile means changing at least two sets, and every optimal solution
                 rearranges at least five.</li>
+            <li>After a puzzle you can <strong>share</strong> your result, with a link for your friends to play at the
+                same level.</li>
         </ul>
         <button class="btn primary wide" type="button" data-close autofocus>Let's play</button>
         <footer class="credits">
