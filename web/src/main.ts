@@ -196,6 +196,7 @@ function startGame(saved: SavedGame, deal: boolean) {
     setRadio(ui.difficulty, "difficulty", settings.difficulty);
     boardIds = new Set(([] as number[]).concat(...saved.puzzle.board));
     selected = null;
+    updateClock();
     saveGame();
     render({ deal });
     if (deal) sfx.deal(saved.puzzle.hand.length + boardIds.size);
@@ -204,6 +205,20 @@ function startGame(saved: SavedGame, deal: boolean) {
 
 function saveGame() {
     store.saveGame(game);
+}
+
+/**
+ * The time a puzzle takes only runs while the page is shown. While it is hidden or closed the clock stands still,
+ * and the start is moved on by that time when the page is shown again.
+ */
+function updateClock() {
+    if (!game || game.finished) return;
+    if (document.hidden && !game.pausedAt) {
+        game.pausedAt = Date.now();
+    } else if (!document.hidden && game.pausedAt) {
+        game.startedAt += Date.now() - game.pausedAt;
+        delete game.pausedAt;
+    }
 }
 
 // ---------------------------------------------------------------- rendering
@@ -1139,6 +1154,8 @@ function init() {
     window.addEventListener("blur", cancelDrag);
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) cancelDrag();
+        updateClock();
+        if (game) saveGame();
     });
     ui.app.addEventListener("click", onClick);
     document.addEventListener("keydown", onKeyDown);

@@ -53,7 +53,10 @@ export interface SavedGame {
     sets: number[][];
     rack: number[];
     penalties: number;
+    /** when the puzzle was started, moved on by the time the clock stood still */
     startedAt: number;
+    /** since when the clock stands still: it does while the page is hidden or closed */
+    pausedAt?: number;
     finished: boolean;
 }
 
