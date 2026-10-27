@@ -8,6 +8,9 @@ import {
     computePoints, penaltyFactor, summarize, renderChart, Metric, DIFFICULTY_LABEL, MULTIPLIER,
     accuracy, formatDate, isOptimal,
 } from "./stats.ts";
+import {
+    shareMessage, ShareMessage, SHARE_TARGETS, fullText, invitingText, formatDuration, levelLink, linkedLevel, LEVEL_PARAM,
+} from "./share.ts";
 
 type Target = { kind: "set"; index: number } | { kind: "new" } | { kind: "rack" };
 
@@ -37,6 +40,13 @@ const ui = {
     resultContent: byId("result-content"),
     statsDialog: byId<HTMLDialogElement>("stats-dialog"),
     helpDialog: byId<HTMLDialogElement>("help-dialog"),
+    shareDialog: byId<HTMLDialogElement>("share-dialog"),
+    sharePreview: byId("share-preview"),
+    shareTime: byId<HTMLInputElement>("share-time"),
+    shareTotal: byId<HTMLInputElement>("share-total"),
+    btnShareNative: byId<HTMLButtonElement>("btn-share-native"),
+    shareTargets: byId("share-targets"),
+    shareStatus: byId("share-status"),
     toast: byId("toast"),
     loading: byId("loading"),
     confetti: byId<HTMLCanvasElement>("confetti"),
@@ -186,6 +196,7 @@ function startGame(saved: SavedGame, deal: boolean) {
     setRadio(ui.difficulty, "difficulty", settings.difficulty);
     boardIds = new Set(([] as number[]).concat(...saved.puzzle.board));
     selected = null;
+    updateClock();
     saveGame();
     render({ deal });
     if (deal) sfx.deal(saved.puzzle.hand.length + boardIds.size);
@@ -194,6 +205,20 @@ function startGame(saved: SavedGame, deal: boolean) {
 
 function saveGame() {
     store.saveGame(game);
+}
+
+/**
+ * The time a puzzle takes only runs while the page is shown. While it is hidden or closed the clock stands still,
+ * and the start is moved on by that time when the page is shown again.
+ */
+function updateClock() {
+    if (!game || game.finished) return;
+    if (document.hidden && !game.pausedAt) {
+        game.pausedAt = Date.now();
+    } else if (!document.hidden && game.pausedAt) {
+        game.startedAt += Date.now() - game.pausedAt;
+        delete game.pausedAt;
+    }
 }
 
 // ---------------------------------------------------------------- rendering
@@ -777,6 +802,7 @@ function showResult(entry: HistoryEntry, celebrate = true) {
             <h2 id="result-title">${title}</h2>
             <p>${text}</p>
             <div class="points">+<span id="result-points">0</span> <small>points</small></div>
+            <button class="btn ghost share-result" type="button" data-action="share">${SHARE_ICON} Share</button>
         </div>
         <ul class="result-details">${details}</ul>
         <div class="solution">
@@ -817,6 +843,10 @@ function onResultAction(event: MouseEvent) {
             break;
         case "next":
             newPuzzle();
+            break;
+        case "share":
+            // the result shown is the one of the last puzzle
+            if (history.length) openShare(history[history.length - 1]);
             break;
     }
 }
@@ -884,6 +914,128 @@ function openDialog(dialog: HTMLDialogElement) {
 
 function closeDialog(dialog: HTMLDialogElement) {
     if (dialog.open) dialog.close();
+}
+
+// ---------------------------------------------------------------- sharing
+
+const SHARE_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M8 10H6.5A1.5 1.5 0 005 11.5v8A1.5 1.5 0 006.5 21h11a1.5 1.5 0 001.5-1.5v-8a1.5 1.5 0 00-1.5-1.5H16"/></svg>`;
+const COPY_ICON = `<path d="M11 9h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8a2 2 0 012-2zM15 9V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+/** the finished puzzle whose result is being shared */
+let sharing: HistoryEntry | null = null;
+
+/** Removes the level of a shared link from the address, so that reloading the page doesn't switch back to it. */
+function forgetLinkedLevel() {
+    const url = new URL(location.href);
+    if (!url.searchParams.has(LEVEL_PARAM)) return;
+    url.searchParams.delete(LEVEL_PARAM);
+    window.history.replaceState(window.history.state, "", url.href);
+}
+
+function shareIcon(color: string, svg: string, disk = false): string {
+    return `<span class="share-icon${disk ? " disk" : ""}" style="--brand: ${color}" aria-hidden="true"><svg viewBox="0 0 24 24">${svg}</svg></span>`;
+}
+
+function setupShare() {
+    ui.shareTargets.innerHTML = SHARE_TARGETS.map(target =>
+        `<a class="share-target" data-share="${target.id}" rel="noopener">${shareIcon(target.color, target.icon, target.disk)}${target.label}</a>`
+    ).join("") + `<button class="share-target" type="button" data-share="copy">${shareIcon("#11523b", COPY_ICON)}Copy</button>`;
+    ui.shareTime.addEventListener("change", () => {
+        settings.shareTime = ui.shareTime.checked;
+        saveSettings();
+        renderShare();
+    });
+    ui.shareTotal.addEventListener("change", () => {
+        settings.shareTotal = ui.shareTotal.checked;
+        saveSettings();
+        renderShare();
+    });
+    ui.btnShareNative.addEventListener("click", shareNatively);
+    ui.shareTargets.addEventListener("click", onShareTarget);
+}
+
+function currentMessage(entry: HistoryEntry): ShareMessage {
+    const options = { time: settings.shareTime, total: settings.shareTotal };
+    return shareMessage(entry, summarize(history).total, options, levelLink(location.href, entry.difficulty));
+}
+
+/** For the share sheet of the system: the app chosen there adds the link. */
+function nativeShareData(message: ShareMessage): ShareData {
+    return { title: message.title, text: invitingText(message), url: message.link };
+}
+
+function openShare(entry: HistoryEntry) {
+    sharing = entry;
+    ui.shareTime.checked = settings.shareTime;
+    ui.shareTotal.checked = settings.shareTotal;
+    byId("share-time-value").textContent = formatDuration(entry.durationMs);
+    byId("share-total-value").textContent = summarize(history).total.toLocaleString();
+    shareStatus("");
+    renderShare();
+    openDialog(ui.shareDialog);
+}
+
+function renderShare() {
+    if (!sharing) return;
+    const message = currentMessage(sharing);
+    ui.sharePreview.textContent = fullText(message);
+    const data = nativeShareData(message);
+    ui.btnShareNative.hidden = typeof navigator.share !== "function" ||
+        (typeof navigator.canShare === "function" && !navigator.canShare(data));
+    SHARE_TARGETS.forEach(target => {
+        const link = ui.shareTargets.querySelector(`[data-share="${target.id}"]`) as HTMLAnchorElement;
+        link.href = target.href(message);
+        // web pages open next to the trainer, an email in the mail app
+        link.target = link.protocol === "mailto:" ? "" : "_blank";
+    });
+}
+
+function shareStatus(text: string) {
+    ui.shareStatus.textContent = text;
+}
+
+async function shareNatively() {
+    if (!sharing) return;
+    try {
+        await navigator.share(nativeShareData(currentMessage(sharing)));
+        closeDialog(ui.shareDialog);
+    } catch (e) {
+        // closing the share sheet without choosing an app is no failure
+        if (!(e instanceof DOMException && e.name === "AbortError")) {
+            shareStatus("Sharing didn't work. Please choose an app below or copy the text.");
+        }
+    }
+}
+
+/** The clipboard can only be written in a secure context (https or localhost). */
+function writeClipboard(text: string): Promise<void> {
+    return navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject(new Error("No clipboard"));
+}
+
+function onShareTarget(event: MouseEvent) {
+    const element = (event.target as Element).closest<HTMLElement>("[data-share]");
+    if (!element || !sharing) return;
+    const message = currentMessage(sharing);
+    if (element.dataset.share === "copy") {
+        writeClipboard(fullText(message)).then(
+            () => shareStatus("✓ Copied. Paste it wherever you like."),
+            () => {
+                // selected, the text can still be copied by hand
+                const selection = window.getSelection();
+                if (selection) selection.selectAllChildren(ui.sharePreview);
+                shareStatus("Copying didn't work: the text is selected, so you can copy it yourself.");
+            },
+        );
+        return;
+    }
+    const target = SHARE_TARGETS.find(t => t.id === element.dataset.share);
+    if (target && target.linkOnly) {
+        // the link opens as usual, the text goes to the clipboard to be pasted into the post
+        writeClipboard(invitingText(message)).then(
+            () => shareStatus(`${target.label} only takes the link: your result is copied, paste it into your post.`),
+            () => shareStatus(`${target.label} only takes the link: add your result to your post yourself.`),
+        );
+    }
 }
 
 // ---------------------------------------------------------------- statistics
@@ -982,6 +1134,13 @@ function setupPwa() {
 // ---------------------------------------------------------------- start
 
 function init() {
+    // a shared link opens the trainer at the level of the shared result
+    const linked = linkedLevel(location.href);
+    forgetLinkedLevel();
+    if (linked) {
+        settings.difficulty = linked;
+        saveSettings();
+    }
     if (!DIFFICULTIES.includes(settings.difficulty)) settings.difficulty = "easy";
     setSoundEnabled(settings.sound);
     updateSoundButton();
@@ -995,6 +1154,8 @@ function init() {
     window.addEventListener("blur", cancelDrag);
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) cancelDrag();
+        updateClock();
+        if (game) saveGame();
     });
     ui.app.addEventListener("click", onClick);
     document.addEventListener("keydown", onKeyDown);
@@ -1075,9 +1236,12 @@ function init() {
         }, 150);
     });
     setupPwa();
+    setupShare();
 
     const saved = store.game();
-    if (saved && saved.puzzle && !saved.finished && DIFFICULTIES.includes(saved.puzzle.difficulty)) {
+    // a puzzle in progress is continued, unless a shared link asks for another level
+    if (saved && saved.puzzle && !saved.finished && DIFFICULTIES.includes(saved.puzzle.difficulty) &&
+        (!linked || saved.puzzle.difficulty === linked)) {
         startGame(saved, true);
     } else {
         newPuzzle();

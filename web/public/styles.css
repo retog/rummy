@@ -1104,6 +1104,171 @@ dialog.dialog::backdrop {
     text-align: right;
 }
 
+/* share */
+
+.result-hero .share-result {
+    margin-top: 12px;
+    padding: 8px 18px;
+}
+
+dialog.share-dialog {
+    width: min(520px, calc(100vw - 32px));
+}
+
+.share-body {
+    padding: 4px 22px 18px;
+}
+
+/* the message as it will be sent, in a chat bubble */
+.share-preview {
+    margin: 10px 0 0;
+    padding: 12px 14px;
+    border-radius: 16px 16px 16px 4px;
+    background: var(--surface-2);
+    background: color-mix(in srgb, var(--felt-1) 12%, var(--surface));
+    font-size: 0.92rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.share-options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 18px;
+    font-size: 0.88rem;
+    color: var(--text-2);
+}
+
+.share-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 9px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.share-option:has(:checked) {
+    border-color: var(--felt-1);
+    background: color-mix(in srgb, var(--felt-1) 10%, transparent);
+}
+
+.share-option input {
+    margin: 0;
+    accent-color: var(--felt-1);
+}
+
+.share-option span {
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+    #share-options-label {
+        width: 100%;
+    }
+}
+
+/* rows are centered, so that a shorter last row doesn't look left over */
+.share-targets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 2px;
+}
+
+.btn + .share-targets {
+    margin-top: 18px;
+}
+
+.share-target {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 64px;
+    padding: 4px 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.share-target:hover {
+    color: var(--text);
+}
+
+.share-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s;
+}
+
+.share-target:hover .share-icon {
+    transform: translateY(-2px);
+}
+
+.share-target:active .share-icon {
+    transform: scale(0.94);
+}
+
+.share-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* logos that are a disk themselves: white shows through the symbol cut out of it */
+.share-icon.disk {
+    background: radial-gradient(circle closest-side, #fff 94%, transparent 95%);
+    color: var(--brand);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.share-icon.disk svg {
+    width: 100%;
+    height: 100%;
+}
+
+.share-status {
+    min-height: 1.3em;
+    margin-top: 14px;
+    text-align: center;
+}
+
+/* very narrow phones: four targets per row */
+@media (max-width: 360px) {
+    .share-dialog .dialog-head {
+        padding-left: 16px;
+    }
+    .share-body {
+        padding: 4px 16px 16px;
+    }
+    .share-targets {
+        gap: 12px 0;
+    }
+    .share-target {
+        width: 60px;
+        font-size: 0.72rem;
+    }
+}
+
 /* help */
 
 .help-body {

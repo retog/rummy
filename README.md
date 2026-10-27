@@ -25,6 +25,10 @@ A puzzle trainer that runs in the browser and can be installed as an app (PWA, w
   you can keep trying or have an optimal solution shown.
 - Points depend on how close you got to the optimum, the difficulty (easy ×1, medium ×2, hard ×3, extreme ×5) and the
   number of failed attempts. Your results are stored in the browser's local storage and shown as a chart of your progress.
+- After a puzzle, **Share** passes your result on: the score and the level, optionally also the time it took and your
+  total score, together with a link that opens the trainer at the same level (`?level=hard`). It opens the share sheet
+  of the system where the browser offers one; WhatsApp, Telegram, Facebook, X, Bluesky, email and copying to the
+  clipboard work in every browser. Facebook only takes the link, so the text is copied to be pasted into the post.
 - **Extreme** puzzles are built to resist shortcuts: nothing from the rack fits into a set as it is or forms a set on its
   own, placing even a single tile requires changing at least two sets, and every optimal solution rearranges at least
   five sets of the table.

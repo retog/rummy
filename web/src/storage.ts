@@ -26,6 +26,10 @@ export interface Settings {
     difficulty: Difficulty;
     sound: boolean;
     seenHelp: boolean;
+    /** a shared result includes the time the puzzle took */
+    shareTime: boolean;
+    /** a shared result includes the total score */
+    shareTotal: boolean;
 }
 
 /** One finished puzzle. */
@@ -49,13 +53,19 @@ export interface SavedGame {
     sets: number[][];
     rack: number[];
     penalties: number;
+    /** when the puzzle was started, moved on by the time the clock stood still */
     startedAt: number;
+    /** since when the clock stands still: it does while the page is hidden or closed */
+    pausedAt?: number;
     finished: boolean;
 }
 
 export const store = {
     settings(): Settings {
-        return Object.assign({ difficulty: "easy", sound: true, seenHelp: false }, read<Partial<Settings>>("settings", {}));
+        return Object.assign(
+            { difficulty: "easy", sound: true, seenHelp: false, shareTime: true, shareTotal: true },
+            read<Partial<Settings>>("settings", {}),
+        );
     },
     saveSettings(settings: Settings) {
         write("settings", settings);
